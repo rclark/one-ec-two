@@ -5,10 +5,10 @@ Launch a single EC2. Bring your own key pair. Use https://github.com/mapbox/cfn-
 ## Launch an EC2
 
 ```sh
-$ npm install -g cfn-config
+$ npm install -g @mapbox/cfn-config
 $ git clone https://github.com/rclark/one-ec-two
 $ cd one-ec-two && npm install
-$ cfn-config my-ec2 cloudformation/one-ec-two.template.js -c cfn-configs
+$ cfn-config create my-ec2 cloudformation/one-ec-two.template.js -c cfn-configs
 ```
 
 - Your shell must have valid AWS credentials set in the environment
