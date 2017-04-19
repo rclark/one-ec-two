@@ -1,0 +1,26 @@
+{
+  "name": "one-ec-two",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "update-amis": "bin/update-amis.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rclark/one-ec-two.git"
+  },
+  "author": "Ryan Clark",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rclark/one-ec-two/issues"
+  },
+  "homepage": "https://github.com/rclark/one-ec-two#readme",
+  "devDependencies": {
+    "@mapbox/cloudfriend": "^1.8.1",
+    "aws-sdk": "^2.43.0",
+    "easy-table": "^1.1.0",
+    "eslint": "^3.19.0",
+    "eslint-plugin-node": "^4.2.2"
+  }
+}
