@@ -20,7 +20,22 @@ const regions = [
 ];
 
 module.exports = () => {
-  return Promise.all(regions.map(latestAmzAmi))
+  return Promise.all(regions.map(latestEcsAmi))
+    .then((latest) => {
+      const t = new Table();
+
+      latest.forEach((image) => {
+        t.cell('Region', image.region);
+        t.cell('AMI', image.id);
+        t.cell('Name', image.name);
+        t.newRow();
+      });
+
+      process.stdout.write(`\nNew ECS AMIS:\n\n${t.toString()}\n`);
+
+      return updateMapping(latest, 'amis-ecs.json');
+    })
+    .then(() => Promise.all(regions.map(latestAmzAmi)))
     .then((latest) => {
       const t = new Table();
 
@@ -60,6 +75,29 @@ function latestAmzAmi(region) {
 
         return images;
       }, []).sort((a, b) => a.created - b.created);
+      return images.pop();
+    });
+}
+
+function latestEcsAmi(region) {
+  const ec2 = new AWS.EC2({ region });
+  const params = {
+    Filters: [
+      { Name: 'name', Values: ['*ecs-optimized'] },
+      { Name: 'owner-alias', Values: ['amazon'] }
+    ]
+  };
+
+  return ec2.describeImages(params).promise()
+    .then((data) => {
+      const images = data.Images.map((image) => {
+        return {
+          id: image.ImageId,
+          created: +new Date(image.CreationDate),
+          name: image.Name,
+          region: region
+        };
+      }).sort((a, b) => a.created - b.created);
 
       return images.pop();
     });
