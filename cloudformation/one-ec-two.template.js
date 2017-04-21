@@ -2,13 +2,20 @@
 
 const cf = require('@mapbox/cloudfriend');
 const AmzAmis = require('./amis-amz.json');
+const EcsAmis = require('./amis-ecs.json');
 
 const Parameters = {
   KeyPair: { Type: 'String' },
-  InstanceType: { Type: 'String', Default: 'c3.8xlarge' }
+  InstanceType: { Type: 'String', Default: 'c3.8xlarge' },
+  AMI: { Type: 'String', Default: 'amz', Description: 'amz = latest amazon linux AMI, ecs = latest ecs-optimized AMI, or specify an ami ID' }
 };
 
-const Mappings = { AmzAmis };
+const Mappings = { AmzAmis, EcsAmis };
+
+const Conditions = {
+  UseLatestAmz: cf.equals(cf.ref('AMI'), 'amz'),
+  UseLatestEcs: cf.equals(cf.ref('AMI'), 'ecs')
+};
 
 const Resources = {
   InstanceRole: {
@@ -52,7 +59,15 @@ const Resources = {
     Properties: {
       AvailabilityZone: cf.select(0, cf.getAzs(cf.region)),
       IamInstanceProfile: cf.ref('InstanceProfile'),
-      ImageId: cf.findInMap('AmzAmis', cf.region, 'ami'),
+      ImageId: cf.if(
+        'UseLatestAmz',
+        cf.findInMap('AmzAmis', cf.region, 'ami'),
+        cf.if(
+          'UseLatestEcs',
+          cf.findInMap('EcsAmis', cf.region, 'ami'),
+          cf.ref('AMI')
+        )
+      ),
       InstanceType: cf.ref('InstanceType'),
       KeyName: cf.ref('KeyPair'),
       SecurityGroups: [cf.ref('SecurityGroup')],
@@ -89,4 +104,4 @@ const Outputs = {
   PublicDns: { Value: cf.getAtt('Instance', 'PublicDnsName') }
 };
 
-module.exports = cf.merge({ Parameters, Resources, Mappings, Outputs });
+module.exports = cf.merge({ Parameters, Conditions, Resources, Mappings, Outputs });
