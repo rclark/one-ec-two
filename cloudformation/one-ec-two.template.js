@@ -76,6 +76,13 @@ const Resources = {
         { Key: 'CostCategory', Value: 'RD' }
       ],
       UserData: cf.userData([
+        'Content-Type: multipart/mixed; boundary="===============SLUB=="',
+        'MIME-Version: 1.0',
+        '--===============SLUB==',
+        'MIME-Version: 1.0',
+        'Content-Type: text/x-shellscript; charset="us-ascii"',
+        'Content-Transfer-Encoding: 7bit',
+        'Content-Disposition: attachment; filename="standard_userdata.txt"',
         '#!/bin/bash -e',
         'exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1',
         'yum install -y lvm2',
@@ -94,7 +101,15 @@ const Resources = {
         'mkfs.ext4 /dev/mapper/vdata-ldata',
         'tune2fs -m 0.05 /dev/mapper/vdata-ldata',
         'mkdir -p /mnt/data',
-        'mount /dev/mapper/vdata-ldata /mnt/data'
+        'mount /dev/mapper/vdata-ldata /mnt/data',
+        '--===============SLUB==',
+        'MIME-Version: 1.0',
+        'Content-Type: text/cloud-config; charset="us-ascii"',
+        'Content-Transfer-Encoding: 7bit',
+        'Content-Disposition: attachment; filename="cloud-config"',
+        '#cloud-config',
+        'repo_releasever: 2016.09',
+        '--===============SLUB==--'
       ])
     }
   }
